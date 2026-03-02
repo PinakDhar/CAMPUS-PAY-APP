@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Pay Gateway — System Flow</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050d1a;
+            --panel: #0a1628;
+            --card: #0f2040;
+            --border: #1a3a5c;
+            --teal: #00e5b4;
+            --teal2: #00a882;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --blue: #3b82f6;
+            --purple: #a855f7;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 229, 180, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 180, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 56px;
+            animation: fadeDown 0.6s ease both;
+        }
+
+        .header .tag {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--teal);
+            letter-spacing: 3px;
+            border: 1px solid var(--teal2);
+            padding: 4px 14px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 800;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 0%, var(--teal) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Section label */
+        .section-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--teal);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            padding-left: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
+        /* ─── ACTORS ROW ─── */
+        .actors {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.5s 0.1s ease both;
+        }
+
+        .actor {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 12px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: default;
+        }
+
+        .actor::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--actor-color, var(--teal));
+        }
+
+        .actor:hover {
+            transform: translateY(-3px);
+            border-color: var(--actor-color, var(--teal));
+        }
+
+        .actor .icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .actor .name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 3px;
+        }
+
+        .actor .role {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .actor.student {
+            --actor-color: var(--teal);
+        }
+
+        .actor.app {
+            --actor-color: var(--blue);
+        }
+
+        .actor.upi {
+            --actor-color: var(--amber);
+        }
+
+        .actor.backend {
+            --actor-color: var(--purple);
+        }
+
+        /* ─── MAIN FLOW ─── */
+        .flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            animation: fadeUp 0.5s 0.2s ease both;
+        }
+
+        /* Phase block */
+        .phase {
+            position: relative;
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .phase-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--phase-color, var(--teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: 13px;
+            font-weight: 700;
+            color: #000;
+            flex-shrink: 0;
+            box-shadow: 0 0 16px color-mix(in srgb, var(--phase-color, var(--teal)) 40%, transparent);
+        }
+
+        .phase-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .phase-subtitle {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: auto;
+        }
+
+        /* Steps inside a phase */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 8px;
+            padding-left: 44px;
+        }
+
+        .step {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--phase-color, var(--teal));
+            border-radius: 6px;
+            padding: 14px 16px;
+            position: relative;
+            transition: background 0.2s, transform 0.2s;
+            cursor: default;
+        }
+
+        .step:hover {
+            background: #112238;
+            transform: translateX(2px);
+        }
+
+        .step .step-label {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--phase-color, var(--teal));
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .step .step-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .step .step-body {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .step .badge {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 2px;
+            margin-top: 8px;
+            background: color-mix(in srgb, var(--phase-color, var(--teal)) 15%, transparent);
+            color: var(--phase-color, var(--teal));
+            border: 1px solid color-mix(in srgb, var(--phase-color, var(--teal)) 30%, transparent);
+        }
+
+        /* Arrow connector between phases */
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 60px;
+            margin: 6px 0;
+            gap: 6px;
+            opacity: 0.5;
+        }
+
+        .connector-line {
+            width: 1px;
+            height: 28px;
+            background: linear-gradient(180deg, var(--border), transparent);
+            margin-left: -1px;
+        }
+
+        .connector-arrow {
+            font-size: 11px;
+            color: var(--teal);
+        }
+
+        /* ─── SECURITY LAYER ─── */
+        .security-section {
+            margin-top: 40px;
+            animation: fadeUp 0.5s 0.3s ease both;
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+        }
+
+        .sec-card {
+            background: #0d0a1e;
+            border: 1px solid #2d1a4a;
+            border-top: 2px solid var(--purple);
+            border-radius: 6px;
+            padding: 16px;
+            transition: transform 0.2s;
+            cursor: default;
+        }
+
+        .sec-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .sec-card .sec-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .sec-card .sec-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #c4b5fd;
+            margin-bottom: 5px;
+        }
+
+        .sec-card .sec-body {
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: #6b5e8f;
+            line-height: 1.5;
+        }
+
+        .sec-card .threat {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 2px;
+            margin-top: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* ─── TECH STACK FOOTER ─── */
+        .stack-section {
+            margin-top: 40px;
+            animation: fadeUp 0.5s 0.4s ease both;
+        }
+
+        .stack-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--muted);
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .chip:hover {
+            border-color: var(--teal);
+            color: var(--teal);
+        }
+
+        .chip.highlight {
+            border-color: var(--teal2);
+            color: var(--teal);
+            background: rgba(0, 229, 180, 0.05);
+        }
+
+        /* Phase color themes */
+        .phase[data-phase="1"] {
+            --phase-color: #00e5b4;
+        }
+
+        .phase[data-phase="2"] {
+            --phase-color: #3b82f6;
+        }
+
+        .phase[data-phase="3"] {
+            --phase-color: #f59e0b;
+        }
+
+        .phase[data-phase="4"] {
+            --phase-color: #10b981;
+        }
+
+        .phase[data-phase="5"] {
+            --phase-color: #ec4899;
+        }
+
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .actors {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                padding-left: 0;
+                grid-template-columns: 1fr;
+            }
+
+            .phase-subtitle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <div class="tag">SYSTEM ARCHITECTURE</div>
+            <h1>Campus Pay Gateway</h1>
+            <p>// complete end-to-end flow diagram</p>
+        </div>
+
+        <!-- ACTORS -->
+        <div class="section-label">actors & systems</div>
+        <div class="actors">
+            <div class="actor student">
+                <span class="icon">🎓</span>
+                <div class="name">Student</div>
+                <div class="role">End User</div>
+            </div>
+            <div class="actor app">
+                <span class="icon">📱</span>
+                <div class="name">Campus Pay App</div>
+                <div class="role">React Native Client</div>
+            </div>
+            <div class="actor upi">
+                <span class="icon">💳</span>
+                <div class="name">UPI / Aggregator</div>
+                <div class="role">Razorpay + GPay / PhonePe</div>
+            </div>
+            <div class="actor backend">
+                <span class="icon">⚙️</span>
+                <div class="name">Backend Server</div>
+                <div class="role">Spring Boot + PostgreSQL</div>
+            </div>
+        </div>
+
+        <!-- MAIN FLOW -->
+        <div class="section-label" style="margin-top:32px">transaction flow</div>
+        <div class="flow">
+
+            <!-- PHASE 1 -->
+            <div class="phase" data-phase="1">
+                <div class="phase-header">
+                    <div class="phase-num">1</div>
+                    <div class="phase-title">Initiation</div>
+                    <div class="phase-subtitle">Student → App</div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-label">STEP 1.1</div>
+                        <div class="step-title">Student Opens App</div>
+                        <div class="step-body">JWT token verified locally. Campus Credit balance and active offers are
+                            loaded from backend.</div>
+                        <span class="badge">Auth Check</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 1.2</div>
+                        <div class="step-title">Scan Vendor QR</div>
+                        <div class="step-body">App reads vendor-specific QR. Backend is queried to validate vendor ID
+                            and fetch current offers.</div>
+                        <span class="badge">Vendor Lookup</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 1.3</div>
+                        <div class="step-title">Order Created</div>
+                        <div class="step-body">Backend creates an Order record with a unique Order ID, amount,
+                            timestamp. Status = PENDING.</div>
+                        <span class="badge">DB Write</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector">
+                <div class="connector-line"></div>
+            </div>
+
+            <!-- PHASE 2 -->
+            <div class="phase" data-phase="2">
+                <div class="phase-header">
+                    <div class="phase-num">2</div>
+                    <div class="phase-title">Payment Delegation</div>
+                    <div class="phase-subtitle">App → UPI Intent → GPay / PhonePe</div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-label">STEP 2.1</div>
+                        <div class="step-title">UPI Deep Link Fired</div>
+                        <div class="step-body">App triggers UPI Intent with pa=, pn=, am=, tn= (transaction note) and a
+                            unique tr= reference ID.</div>
+                        <span class="badge">UPI Intent</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 2.2</div>
+                        <div class="step-title">UPI App Handles Payment</div>
+                        <div class="step-body">OS hands off to GPay / PhonePe. Student authenticates via UPI PIN. Our
+                            app is NOT involved here.</div>
+                        <span class="badge">Out of Scope</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 2.3</div>
+                        <div class="step-title">App Receives Callback</div>
+                        <div class="step-body">UPI Intent returns status (SUCCESS / FAILURE) to our app. ⚠️ Do NOT trust
+                            this — it can be spoofed.</div>
+                        <span class="badge">Untrusted</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector">
+                <div class="connector-line"></div>
+            </div>
+
+            <!-- PHASE 3 -->
+            <div class="phase" data-phase="3">
+                <div class="phase-header">
+                    <div class="phase-num">3</div>
+                    <div class="phase-title">Server-Side Verification</div>
+                    <div class="phase-subtitle">Razorpay → Backend (S2S Webhook)</div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-label">STEP 3.1</div>
+                        <div class="step-title">Webhook Received</div>
+                        <div class="step-body">Razorpay POSTs a signed payload to /webhooks/payment on our backend.
+                            Contains event type and payment data.</div>
+                        <span class="badge">S2S POST</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 3.2</div>
+                        <div class="step-title">HMAC Signature Verified</div>
+                        <div class="step-body">Backend recomputes HMAC-SHA256 of the raw body using the secret key. If
+                            hashes don't match → 401 Reject.</div>
+                        <span class="badge">🔏 Crypto Check</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 3.3</div>
+                        <div class="step-title">Idempotency Check</div>
+                        <div class="step-body">Redis lookup: has this payment_id been processed before? If yes → return
+                            200 (ack) but skip processing.</div>
+                        <span class="badge">Redis + Dedup</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector">
+                <div class="connector-line"></div>
+            </div>
+
+            <!-- PHASE 4 -->
+            <div class="phase" data-phase="4">
+                <div class="phase-header">
+                    <div class="phase-num">4</div>
+                    <div class="phase-title">Gamification Engine</div>
+                    <div class="phase-subtitle">Backend Atomic Transaction</div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-label">STEP 4.1</div>
+                        <div class="step-title">Reward Calculated</div>
+                        <div class="step-body">Algorithm determines reward: Campus Credits (e.g. 2% of spend), scratch
+                            card, or vendor coupon based on spend tier.</div>
+                        <span class="badge">Reward Logic</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 4.2</div>
+                        <div class="step-title">Atomic DB Transaction</div>
+                        <div class="step-body">BEGIN TRANSACTION → update order status → credit Campus Credits → log
+                            reward → COMMIT. Rolls back entirely on failure.</div>
+                        <span class="badge">⚛ ACID</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 4.3</div>
+                        <div class="step-title">Push Notification Sent</div>
+                        <div class="step-body">Firebase FCM push sent to student: "Payment successful! You earned 12
+                            Campus Credits 🎉". Vendor notified too.</div>
+                        <span class="badge">Firebase FCM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector">
+                <div class="connector-line"></div>
+            </div>
+
+            <!-- PHASE 5 -->
+            <div class="phase" data-phase="5">
+                <div class="phase-header">
+                    <div class="phase-num">5</div>
+                    <div class="phase-title">Post-Transaction UX</div>
+                    <div class="phase-subtitle">Feedback + Edge Cases</div>
+                </div>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-label">STEP 5.1</div>
+                        <div class="step-title">Rating Prompt</div>
+                        <div class="step-body">App shows 1–5 star prompt for the vendor. Saved as a transaction-linked
+                            review. Vendor dashboard updated.</div>
+                        <span class="badge">Feedback</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 5.2</div>
+                        <div class="step-title">Redeem Credits</div>
+                        <div class="step-body">Student can apply Campus Credits to reduce payment on next transaction.
+                            Deducted atomically same as earning.</div>
+                        <span class="badge">Redemption</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-label">STEP 5.3</div>
+                        <div class="step-title">Dispute Flow (Edge Case)</div>
+                        <div class="step-body">Money deducted but status unclear? Student taps "Report Issue" → backend
+                            queries Razorpay API with Order ID → auto-reconciles.</div>
+                        <span class="badge">⚠ Dispute API</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECURITY LAYER -->
+        <div class="security-section">
+            <div class="section-label" style="margin-bottom:16px">security layer — your domain</div>
+            <div class="security-grid">
+                <div class="sec-card">
+                    <div class="sec-icon">🔐</div>
+                    <div class="sec-title">JWT + TLS</div>
+                    <div class="sec-body">All API calls over HTTPS. Access tokens expire in 15 min. RS256 signing.
+                        Refresh token rotation.</div>
+                    <span class="threat">Threat: Session Hijacking</span>
+                </div>
+                <div class="sec-card">
+                    <div class="sec-icon">🔏</div>
+                    <div class="sec-title">HMAC Verification</div>
+                    <div class="sec-body">Every webhook validated server-side. HMAC-SHA256 computed and compared before
+                        any processing begins.</div>
+                    <span class="threat">Threat: Webhook Spoofing</span>
+                </div>
+                <div class="sec-card">
+                    <div class="sec-icon">♻️</div>
+                    <div class="sec-title">Idempotency + Replay Guard</div>
+                    <div class="sec-body">payment_id stored in Redis. Timestamp tolerance window of ±5 min. Duplicate
+                        webhooks silently acked.</div>
+                    <span class="threat">Threat: Replay Attacks</span>
+                </div>
+                <div class="sec-card">
+                    <div class="sec-icon">🚦</div>
+                    <div class="sec-title">Rate Limiting</div>
+                    <div class="sec-body">Dispute endpoint rate-limited per user. Prevents enumeration attacks on Order
+                        IDs via the external aggregator API.</div>
+                    <span class="threat">Threat: API Abuse</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TECH STACK -->
+        <div class="stack-section">
+            <div class="section-label">tech stack</div>
+            <div class="stack-chips">
+                <span class="chip highlight">Spring Boot</span>
+                <span class="chip highlight">PostgreSQL</span>
+                <span class="chip highlight">Redis</span>
+                <span class="chip highlight">React Native</span>
+                <span class="chip highlight">Razorpay SDK</span>
+                <span class="chip">Firebase FCM</span>
+                <span class="chip">JWT (RS256)</span>
+                <span class="chip">HMAC-SHA256</span>
+                <span class="chip">Docker</span>
+                <span class="chip">AWS EC2 / DigitalOcean</span>
+                <span class="chip">Let's Encrypt SSL</span>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>
