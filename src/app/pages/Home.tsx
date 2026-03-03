@@ -4,12 +4,14 @@ import { QRScanner } from "../components/QRScanner";
 import { QuickActions } from "../components/QuickActions";
 import { RewardsCard } from "../components/RewardsCard";
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, ChevronDown, ChevronUp } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, ChevronUp, History } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export function Home() {
   const [showBalance, setShowBalance] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,7 +27,7 @@ export function Home() {
   }, []);
 
   return (
-    <div className="size-full min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 pb-32">
+    <div className="size-full min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 pb-40">
       {/* Header */}
       <header className="flex items-center justify-between p-4 md:p-6">
         {/* Profile - Left */}
@@ -86,6 +88,25 @@ export function Home() {
         
         {/* Quick Actions */}
         <QuickActions />
+
+        {/* Transaction History Button */}
+        <div className="w-full max-w-md">
+          <button
+            onClick={() => navigate('/history')}
+            className="w-full flex items-center justify-between bg-white rounded-2xl shadow-md p-4 hover:shadow-lg transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full p-2">
+                <History className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="font-semibold text-gray-800">Transaction History</p>
+                <p className="text-xs text-gray-500">View all your transactions</p>
+              </div>
+            </div>
+            <span className="text-gray-400">›</span>
+          </button>
+        </div>
       </main>
 
       {/* Balance Card */}

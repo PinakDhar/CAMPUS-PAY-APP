@@ -12,29 +12,14 @@ export function QRScanner() {
       // Simulate scanning process
       setTimeout(() => {
         setIsScanning(false);
-        // Randomly determine if vendor offers rewards (70% chance)
-        const isRewardVendor = Math.random() > 0.3;
         const amount = Math.floor(Math.random() * 500) + 50;
-        const coinsEarned = isRewardVendor ? Math.floor(amount / 50) : 0;
         
-        // Navigate to success page with transaction data
-        navigate('/success', {
+        // Navigate to UPI app selector with scanned data
+        navigate('/select-upi', {
           state: {
             amount: `₹${amount.toLocaleString()}`,
             recipient: "Campus Canteen",
-            upiId: "canteen@kiit",
-            transactionId: `T${Date.now()}`,
-            dateTime: new Date().toLocaleString('en-IN', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            }),
-            status: "Success",
-            kiitCoinsEarned: coinsEarned,
-            isRewardVendor: isRewardVendor
+            upiId: "canteen@kiit"
           }
         });
       }, 2000);

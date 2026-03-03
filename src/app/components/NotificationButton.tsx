@@ -1,11 +1,14 @@
 import { Bell } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 export function NotificationButton() {
   const [hasNotification] = useState(true);
+  const navigate = useNavigate();
 
   return (
     <button
+      onClick={() => navigate('/notifications')}
       className="relative w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md hover:shadow-lg transition-shadow"
       aria-label="Notifications"
     >
