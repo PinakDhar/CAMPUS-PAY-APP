@@ -6,12 +6,17 @@ import { RewardsCard } from "../components/RewardsCard";
 import { useState, useEffect } from "react";
 import { Eye, EyeOff, ChevronDown, ChevronUp, History } from "lucide-react";
 import { useNavigate } from "react-router";
+import { getCoinData, getTransactionsToNextLevel } from "../utils/coinStorage";
 
 export function Home() {
   const [showBalance, setShowBalance] = useState(false);
   const [showRewards, setShowRewards] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
+
+  // Get coin data
+  const coinData = getCoinData();
+  const transactionsToNextLevel = getTransactionsToNextLevel();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,7 +32,7 @@ export function Home() {
   }, []);
 
   return (
-    <div className="size-full min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 pb-40">
+    <div className="size-full min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-40 transition-colors">
       {/* Header */}
       <header className="flex items-center justify-between p-4 md:p-6">
         {/* Profile - Left */}
@@ -50,21 +55,21 @@ export function Home() {
         <div className="w-full max-w-md">
           <button
             onClick={() => setShowRewards(!showRewards)}
-            className="w-full flex items-center justify-between bg-white rounded-2xl shadow-md p-4 mb-3 hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-between bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 mb-3 hover:shadow-lg transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-amber-500 to-orange-500 rounded-full p-2">
                 <span className="text-white text-sm font-bold">🎁</span>
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-800">Rewards & Level</p>
-                <p className="text-xs text-gray-500">View your progress</p>
+                <p className="font-semibold text-gray-800 dark:text-white">Rewards & Level</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">View your progress</p>
               </div>
             </div>
             {showRewards ? (
-              <ChevronUp className="w-5 h-5 text-gray-400" />
+              <ChevronUp className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             ) : (
-              <ChevronDown className="w-5 h-5 text-gray-400" />
+              <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500" />
             )}
           </button>
           
@@ -75,10 +80,10 @@ export function Home() {
             }`}
           >
             <RewardsCard 
-              kiitCoins={450} 
-              level={3} 
-              transactionsToNextLevel={7}
-              maxTransactions={15}
+              kiitCoins={coinData.kiitCoins} 
+              level={coinData.level} 
+              transactionsToNextLevel={transactionsToNextLevel}
+              maxTransactions={10}
             />
           </div>
         </div>
@@ -93,18 +98,18 @@ export function Home() {
         <div className="w-full max-w-md">
           <button
             onClick={() => navigate('/history')}
-            className="w-full flex items-center justify-between bg-white rounded-2xl shadow-md p-4 hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-between bg-white dark:bg-gray-800 rounded-2xl shadow-md p-4 hover:shadow-lg transition-all"
           >
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full p-2">
                 <History className="w-5 h-5 text-white" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-800">Transaction History</p>
-                <p className="text-xs text-gray-500">View all your transactions</p>
+                <p className="font-semibold text-gray-800 dark:text-white">Transaction History</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">View all your transactions</p>
               </div>
             </div>
-            <span className="text-gray-400">›</span>
+            <span className="text-gray-400 dark:text-gray-500">›</span>
           </button>
         </div>
       </main>
@@ -113,14 +118,14 @@ export function Home() {
       <div className={`fixed left-1/2 transform -translate-x-1/2 w-[calc(100%-2rem)] max-w-md transition-all duration-500 ease-in-out z-50 ${
         isScrolled ? 'bottom-[-100px]' : 'bottom-6'
       }`}>
-        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-100 dark:border-gray-700 transition-colors">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-sm text-gray-500">Available Balance</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Available Balance</p>
                 <button
                   onClick={() => setShowBalance(!showBalance)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                   aria-label={showBalance ? "Hide balance" : "Show balance"}
                 >
                   {showBalance ? (
@@ -130,7 +135,7 @@ export function Home() {
                   )}
                 </button>
               </div>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-2xl font-bold text-gray-800 dark:text-white">
                 {showBalance ? "₹12,450.00" : "₹••••••"}
               </p>
             </div>

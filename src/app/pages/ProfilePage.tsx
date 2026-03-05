@@ -1,24 +1,14 @@
-import { ArrowLeft, User, Mail, Phone, MapPin, Edit, LogOut, Shield, CreditCard, Info } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, MapPin, Edit, LogOut, Shield, CreditCard, Info, Settings } from "lucide-react";
 import { useNavigate } from "react-router";
+import { getUserData, logout, formatDate } from "../utils/userStorage";
 
 export function ProfilePage() {
   const navigate = useNavigate();
-
-  const userData = {
-    name: "Rajesh Kumar",
-    email: "rajesh.kumar@kiit.ac.in",
-    phone: "+91 98765 43210",
-    studentId: "2021001234",
-    department: "Computer Science & Engineering",
-    semester: "6th Semester",
-    avatar: "RK",
-    bio: "Tech enthusiast | CSE Student | KIIT University",
-    bloodGroup: "O+",
-    dateOfBirth: "15 May 1999"
-  };
+  const userData = getUserData();
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
+      logout();
       navigate('/login');
     }
   };
@@ -59,7 +49,7 @@ export function ProfilePage() {
           </div>
           
           {/* Bio */}
-          {userData.bio && (
+          {userData.bio && userData.bio !== "Welcome to Campus Pay" && (
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 mt-4">
               <p className="text-sm opacity-90">{userData.bio}</p>
             </div>
@@ -86,7 +76,7 @@ export function ProfilePage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Date of Birth</p>
-                <p className="text-xs font-bold text-gray-800">{userData.dateOfBirth}</p>
+                <p className="text-xs font-bold text-gray-800">{formatDate(userData.dateOfBirth)}</p>
               </div>
             </div>
           </div>
@@ -141,6 +131,16 @@ export function ProfilePage() {
               <Shield className="w-5 h-5 text-blue-600" />
             </div>
             <span className="flex-1 text-left font-medium text-gray-800">Security & Privacy</span>
+            <span className="text-gray-400">›</span>
+          </button>
+          <button 
+            onClick={() => navigate('/settings')}
+            className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-100"
+          >
+            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
+              <Settings className="w-5 h-5 text-indigo-600" />
+            </div>
+            <span className="flex-1 text-left font-medium text-gray-800">Settings</span>
             <span className="text-gray-400">›</span>
           </button>
           <button className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-100">

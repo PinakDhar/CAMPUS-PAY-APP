@@ -1,5 +1,9 @@
 import { CheckCircle, Download, Share2, Home, Coins, Sparkles } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
+import { useEffect, useRef } from "react";
+import { addCoins } from "../utils/coinStorage";
+import html2canvas from "html2canvas";
+import { useTheme } from "../context/ThemeContext";
 
 interface TransactionData {
   amount: string;
@@ -15,6 +19,8 @@ interface TransactionData {
 export function TransactionSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme } = useTheme();
+  const receiptRef = useRef<HTMLDivElement>(null);
   
   // Get transaction data from navigation state or use default
   const transactionData: TransactionData = location.state || {
@@ -33,6 +39,68 @@ export function TransactionSuccess() {
     status: "Success",
     kiitCoinsEarned: 25,
     isRewardVendor: true
+  };
+
+  // Add coins when transaction is successful
+  useEffect(() => {
+    if (transactionData.isRewardVendor && transactionData.kiitCoinsEarned) {
+      addCoins(
+        transactionData.kiitCoinsEarned, 
+        `Payment to ${transactionData.recipient}`
+      );
+    }
+  }, [transactionData.isRewardVendor, transactionData.kiitCoinsEarned, transactionData.recipient]);
+
+  const handleDownload = async () => {
+    if (receiptRef.current) {
+      try {
+        const canvas = await html2canvas(receiptRef.current, {
+          backgroundColor: theme === "dark" ? "#1f2937" : "#ffffff",
+          scale: 2
+        });
+        
+        const link = document.createElement("a");
+        link.download = `receipt-${transactionData.transactionId}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+      } catch (error) {
+        console.error("Error downloading receipt:", error);
+        alert("Failed to download receipt");
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    if (receiptRef.current) {
+      try {
+        const canvas = await html2canvas(receiptRef.current, {
+          backgroundColor: theme === "dark" ? "#1f2937" : "#ffffff",
+          scale: 2
+        });
+        
+        canvas.toBlob(async (blob) => {
+          if (blob) {
+            const file = new File([blob], `receipt-${transactionData.transactionId}.png`, { type: "image/png" });
+            
+            if (navigator.share && navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: "Transaction Receipt",
+                text: `Payment receipt for ${transactionData.amount}`,
+                files: [file]
+              });
+            } else {
+              // Fallback: copy to clipboard
+              alert("Sharing not supported. Receipt will be copied to clipboard.");
+              const item = new ClipboardItem({ "image/png": blob });
+              await navigator.clipboard.write([item]);
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error sharing receipt:", error);
+        alert("Failed to share receipt");
+      }
+    }
   };
 
   return (
@@ -70,7 +138,7 @@ export function TransactionSuccess() {
         )}
 
         {/* Transaction Details Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-6 mb-6">
+        <div ref={receiptRef} className="bg-white rounded-3xl shadow-2xl p-6 mb-6">
           {/* Amount */}
           <div className="text-center pb-6 border-b border-gray-100">
             <p className="text-sm text-gray-500 mb-1">Amount Paid</p>
@@ -95,12 +163,18 @@ export function TransactionSuccess() {
 
         {/* Action Buttons */}
         <div className="space-y-3 mb-6">
-          <button className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95">
+          <button 
+            onClick={handleDownload}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
+          >
             <Download className="w-5 h-5" />
             <span className="font-semibold">Download Receipt</span>
           </button>
           
-          <button className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white text-gray-700 rounded-2xl shadow-md hover:shadow-lg transition-all border border-gray-200">
+          <button 
+            onClick={handleShare}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white text-gray-700 rounded-2xl shadow-md hover:shadow-lg transition-all border border-gray-200"
+          >
             <Share2 className="w-5 h-5" />
             <span className="font-semibold">Share Receipt</span>
           </button>

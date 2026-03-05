@@ -1,23 +1,25 @@
 import { ArrowLeft, Camera, Save } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { getUserData, saveUserData, getInitials } from "../utils/userStorage";
 
 export function EditProfilePage() {
   const navigate = useNavigate();
+  const currentUserData = getUserData();
 
   const [formData, setFormData] = useState({
-    name: "Rajesh Kumar",
-    email: "rajesh.kumar@kiit.ac.in",
-    phone: "+91 98765 43210",
-    studentId: "2021001234",
-    department: "Computer Science & Engineering",
-    semester: "6th Semester",
-    bio: "Tech enthusiast | CSE Student | KIIT University",
-    dateOfBirth: "1999-05-15",
-    bloodGroup: "O+",
-    address: "Hostel-5, Room-302, KIIT Campus",
-    emergencyContact: "+91 98765 00000",
-    emergencyContactName: "Father - Kumar Singh"
+    name: currentUserData.name,
+    email: currentUserData.email,
+    phone: currentUserData.phone,
+    studentId: currentUserData.studentId,
+    department: currentUserData.department,
+    semester: currentUserData.semester,
+    bio: currentUserData.bio,
+    dateOfBirth: currentUserData.dateOfBirth,
+    bloodGroup: currentUserData.bloodGroup,
+    address: currentUserData.address,
+    emergencyContact: currentUserData.emergencyContact,
+    emergencyContactName: currentUserData.emergencyContactName
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -28,7 +30,12 @@ export function EditProfilePage() {
   };
 
   const handleSave = () => {
-    // Save logic here
+    // Update user data with new avatar if name changed
+    const updatedData = {
+      ...formData,
+      avatar: getInitials(formData.name)
+    };
+    saveUserData(updatedData);
     navigate('/profile');
   };
 
@@ -62,7 +69,7 @@ export function EditProfilePage() {
           <div className="flex flex-col items-center">
             <div className="relative">
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-white text-3xl font-bold">
-                RK
+                {getInitials(formData.name)}
               </div>
               <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border-2 border-purple-600 hover:bg-purple-50 transition-colors">
                 <Camera className="w-4 h-4 text-purple-600" />

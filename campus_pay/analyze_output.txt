@@ -1,0 +1,8 @@
+Analyzing campus_pay...                                         
+
+  error - There's no constant named 'earned' in 'TransactionType' - lib\screens\receipt_screen.dart:21:64 - undefined_enum_constant
+  error - The getter 'title' isn't defined for the type 'Transaction' - lib\screens\receipt_screen.dart:74:35 - undefined_getter
+  error - The getter 'date' isn't defined for the type 'Transaction' - lib\screens\receipt_screen.dart:83:78 - undefined_getter
+  error - The name 'AuthService' isn't a type, so it can't be used as a type argument - lib\screens\settings_screen.dart:12:30 - non_type_as_type_argument
+  error - The name 'AuthService' isn't a type, so it can't be used as a type argument - lib\screens\settings_screen.dart:243:32 - non_type_as_type_argument
+

@@ -1,6 +1,7 @@
 import { ArrowLeft, Gift, Tag, Copy, Check, Star, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { getCoinData } from "../utils/coinStorage";
 
 interface Coupon {
   id: string;
@@ -16,9 +17,11 @@ export function RewardsPage() {
   const navigate = useNavigate();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Mock data
-  const kiitCoins = 450;
-  const level = 3;
+  // Get coin data
+  const coinData = getCoinData();
+  const kiitCoins = coinData.kiitCoins;
+  const level = coinData.level;
+
   const coupons: Coupon[] = [
     {
       id: "1",

@@ -1,6 +1,7 @@
 import { ArrowLeft, Coffee, Book, Utensils, ShoppingBag, Minus, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { getCoinData, redeemCoins } from "../utils/coinStorage";
 
 interface RedeemItem {
   id: string;
@@ -16,7 +17,8 @@ export function RedeemPage() {
   const navigate = useNavigate();
   const [selectedItems, setSelectedItems] = useState<Map<string, number>>(new Map());
   
-  const userCoins = 450;
+  const coinData = getCoinData();
+  const userCoins = coinData.kiitCoins;
 
   const redeemItems: RedeemItem[] = [
     {
@@ -102,6 +104,30 @@ export function RedeemPage() {
 
   const totalCoins = getTotalCoins();
   const canRedeem = totalCoins > 0 && totalCoins <= userCoins;
+
+  const handleRedeem = () => {
+    if (!canRedeem) return;
+
+    // Get items for description
+    const itemNames: string[] = [];
+    selectedItems.forEach((quantity, itemId) => {
+      const item = redeemItems.find(i => i.id === itemId);
+      if (item) {
+        itemNames.push(`${item.name} x${quantity}`);
+      }
+    });
+
+    // Redeem coins
+    const success = redeemCoins(totalCoins, `Redeemed: ${itemNames.join(', ')}`);
+    
+    if (success) {
+      // Show success and navigate back
+      alert(`Successfully redeemed ${totalCoins} coins!\n\nItems: ${itemNames.join(', ')}`);
+      navigate('/');
+    } else {
+      alert('Insufficient coins!');
+    }
+  };
 
   return (
     <div className="size-full min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -199,6 +225,7 @@ export function RedeemPage() {
               </div>
             </div>
             <button
+              onClick={handleRedeem}
               disabled={!canRedeem}
               className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold text-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >

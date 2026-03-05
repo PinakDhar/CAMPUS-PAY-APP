@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { setAuthenticated } from "../utils/userStorage";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -10,7 +11,8 @@ export function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate login
+    // Simulate login and set authenticated
+    setAuthenticated(true);
     setTimeout(() => {
       navigate('/');
     }, 1000);
@@ -91,6 +93,7 @@ export function LoginPage() {
               </label>
               <button
                 type="button"
+                onClick={() => navigate('/forgot-password')}
                 className="text-sm text-purple-600 hover:text-purple-700 font-medium"
               >
                 Forgot Password?
@@ -131,7 +134,10 @@ export function LoginPage() {
           {/* Sign Up Link */}
           <p className="text-center text-sm text-gray-600 mt-6">
             Don't have an account?{" "}
-            <button className="text-purple-600 font-medium hover:text-purple-700">
+            <button 
+              onClick={() => navigate('/signup')}
+              className="text-purple-600 font-medium hover:text-purple-700"
+            >
               Sign up
             </button>
           </p>

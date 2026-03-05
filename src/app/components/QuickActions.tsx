@@ -1,11 +1,34 @@
 import { ArrowUpRight, ArrowDownLeft, Smartphone, CreditCard } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export function QuickActions() {
+  const navigate = useNavigate();
+
   const actions = [
-    { icon: ArrowUpRight, label: "Send", color: "from-orange-500 to-red-500" },
-    { icon: ArrowDownLeft, label: "Request", color: "from-green-500 to-emerald-500" },
-    { icon: Smartphone, label: "Mobile", color: "from-blue-500 to-cyan-500" },
-    { icon: CreditCard, label: "Bank", color: "from-purple-500 to-pink-500" },
+    { 
+      icon: ArrowUpRight, 
+      label: "Send", 
+      color: "from-orange-500 to-red-500",
+      path: "/send-money"
+    },
+    { 
+      icon: ArrowDownLeft, 
+      label: "Request", 
+      color: "from-green-500 to-emerald-500",
+      path: "/request-money"
+    },
+    { 
+      icon: Smartphone, 
+      label: "Mobile", 
+      color: "from-blue-500 to-cyan-500",
+      path: "/mobile-recharge"
+    },
+    { 
+      icon: CreditCard, 
+      label: "Bank", 
+      color: "from-purple-500 to-pink-500",
+      path: "/bank-transfer"
+    },
   ];
 
   return (
@@ -13,12 +36,13 @@ export function QuickActions() {
       {actions.map((action) => (
         <button
           key={action.label}
+          onClick={() => navigate(action.path)}
           className="flex flex-col items-center gap-2 group"
         >
           <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.color} flex items-center justify-center shadow-md group-hover:shadow-lg transition-all group-hover:scale-110`}>
             <action.icon className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xs text-gray-600">{action.label}</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400">{action.label}</span>
         </button>
       ))}
     </div>
